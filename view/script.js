@@ -1,4 +1,4 @@
-var index = 0;
+
 function getAllPhim() {
   // Sử dụng Fetch API hoặc XMLHttpRequest để gửi yêu cầu GET đến /phim
   fetch('/phim')
