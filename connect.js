@@ -4,7 +4,7 @@ var config = {
   server:"localhost",
   user:"sa",
   password:"Password.1",
-  database:"BTL2_ver1",
+  database:"BTL_Cinema",
   driver:"msnodesqlv8"
 };
 

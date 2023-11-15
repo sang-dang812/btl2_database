@@ -5,18 +5,18 @@ const {conn, sql} = require('./connect');
 const app = express();
 app.use(express.json());
 app.use(express.static(__dirname + '/view'));//thu muc view
-//xem phim dang co
-app.get('/phim', async (req,res) => {
+//xem tai khoan dang co
+app.get('/tkonline/view', async (req,res) => {
   var pool = await conn;
-  var sqlString = "SELECT * FROM Phim";
+  var sqlString = "SELECT * FROM Tai_khoan_online";
   return await pool.request().query(sqlString, (err,data) => {
     res.send({result: data.recordset});
   });
 });
-
-app.get('/phim/:id', async (req,res) => {
+//xem tai khoan dang co = id
+app.get('/tkonline/view/:id', async (req,res) => {
   var pool = await conn;
-  var sqlString = `SELECT * FROM Phim WHERE Maphim = ${req.params.id}`;
+  var sqlString = `SELECT * FROM Tai_khoan_online WHERE Mataikhoan = ${req.params.id}`;
   return await pool.request().query(sqlString, (err,data) => {
     if (data.recordset.length > 0){
       res.send({result: data.recordset[0]});
@@ -27,38 +27,45 @@ app.get('/phim/:id', async (req,res) => {
   });
 });
 //tai len phim moi
-app.post('/phim/post', async (req,res) => {
-  var pool = await conn;
-  var sqlString = "INSERT INTO Phim(Maphim,Tenphim) VALUES(@Maphim, @Tenphim)";
-  return await pool.request()
-  .input("Maphim",sql.VARCHAR,req.body.Maphim)
-  .input("Tenphim",sql.VARCHAR,req.body.Tenphim)
-  .query(sqlString, (err,data) => {
-    res.send({result:req.body});
-  });
+app.post('/tkonline/post', async (req,res) => {
+  const { Mataikhoan, Tentaikhoan, Loaitaikhoan, Matkhau, NgaylapTKString, Makhachhang, Manhanvien } = req.body;
+  conn
+    .then(pool => {
+      const request = new sql.Request(pool);
+      request.input('Mataikhoan', sql.CHAR(6), Mataikhoan);
+      request.input('Tentaikhoan', sql.VARCHAR(255), Tentaikhoan);
+      request.input('Loaitaikhoan', sql.VARCHAR(255), Loaitaikhoan);
+      request.input('Matkhau', sql.VARCHAR(255), Matkhau);
+      request.input('NgaylapTKString', sql.VARCHAR(10), NgaylapTKString);
+      request.input('Makhachhang', sql.CHAR(9), Makhachhang);
+      request.input('Manhanvien', sql.CHAR(6), Manhanvien);
+
+      request.execute('ThemTaiKhoanOnline',(err, result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send('Internal Server Error');
+        }
+        else {
+          console.log(result.recordsets);
+          res.status(200).send('Procedure executed successfully');
+        }
+      })
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+    });
 });
-//edit phim
-app.put('/phim/edit',async (req,res) => {
+//xoa phim
+app.delete('/tkonline/delete/:id', async(req,res) => {
   var pool = await conn;
-  var sqlString = "UPDATE Phim SET Tenphim = @Tenphim, Daodien = @Daodien WHERE Maphim = @Maphim";
-  return await pool.request()
-  .input("Maphim",sql.VARCHAR,req.body.Maphim)
-  .input("Tenphim",sql.VARCHAR,req.body.Tenphim)
-  .input("Daodien",sql.VARCHAR,req.body.Daodien)
-  .query(sqlString, (err,data) => {
-    res.send({result:req.body});
-  });
-})
-//xoa
-app.delete('/phim/delete/:id', async (req,res) => {
-  var pool = await conn;
-  var sqlString = `DELETE FROM Phim WHERE Maphim = ${req.params.id}`;
+  var sqlString = `DELETE FROM Tai_khoan_online WHERE Mataikhoan = ${req.params.id}`;
   return await pool.request().query(sqlString, (err,data) => {
     if (!err){
-      res.send("xoa thanh cong!!!");
+      res.send('Xoa thanh cong!!');
     }
     else {
-      res.send("co loi xay ra!!!");
+      res.send('Xoa thai bai, co loi xay ra!');
     }
   });
 });

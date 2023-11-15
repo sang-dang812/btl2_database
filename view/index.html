@@ -1,21 +1,215 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie List</title>
-</head>
-<body>
-  <h1>Movie List</h1>
-  <form id="addMovieForm">
-    <label>id:</label>
-    <input type="text" id="newMovieId">
-    <label>Title:</label>
-    <input type="text" id="newMovieTitle">
-    <button type="submit" id="submitButton">Add Movie</button>
-  </form>
-  <ul id="movieList"></ul>
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css">
+
+    <title>Quản lý thư viện</title>
+  </head>
+  <body>
+    <!-- <div class="header">Trang chủ chính thức của thư viện X
+        <br>chào mừng bạn đến với thư viện, hãy tìm hiểu những chức năng bên dưới nhé !
+    </div> -->
+    
+    <a href="https://codepen.io/uiswarup/full/RwNraeW" target="_blank">
+        <section>
+          <div class="container1">
+            <div class="background-img">
+              <div class="box">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <div class="content">
+                    <div class="container">
+                        <svg viewBox="0 0 960 300">
+                          <symbol id="s-text">
+                            <text text-anchor="middle" x="50%" y="80%">Cinema</text>
+                          </symbol>
+                      
+                          <g class = "g-ants">
+                            <use xlink:href="#s-text" class="text-copy"></use>
+                            <use xlink:href="#s-text" class="text-copy"></use>
+                            <use xlink:href="#s-text" class="text-copy"></use>
+                            <use xlink:href="#s-text" class="text-copy"></use>
+                            <use xlink:href="#s-text" class="text-copy"></use>
+                          </g>
+                        </svg>
+                      </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </section>
+          </a>
+      
+
+
+    
+    
+    <div>
+      <label for="add"
+      onclick="
+        var addBoxEle = document.querySelector('.add-box');
+        if (addBoxEle.classList.contains('none'))
+        addBoxEle.classList.remove('none');
+        else
+        addBoxEle.classList.add('none');
+      "
+      >Thêm tài khoản</label>
+      <br>
+      <span class="add-box none">
+      <input type="text" class="info1" name="mataikhoan" placeholder="Mã tài khoản">
+      <input type="text" class="info2" name="tentaikhoan" placeholder="Tên tài khoản">
+      <input type="text" class="info3" name="loaitaikhoan" placeholder="Loại tài khoản">
+      <input type="text" class="info4" name="matkhau" placeholder="Mật khẩu">
+      <input type="text" class="info5" name="ngaylaptaikhoan" placeholder="Ngày lập tài khoản">
+      <input type="text" class="info6" name="makhachhang" placeholder="Mã khách hàng">
+      <input type="text" class="info7" name="manhanvien" placeholder="Mã nhân viên">
+
+      </span>
+      <br>
+      <button class="button" onclick="addTK()">Đồng ý</button>
+    </div>
+    <h1 id="titleOflib">
+    Danh sách tài khoản đang có sẵn trong hệ thống:
+    </h1>
+    <div id="bookList">
+      <!-- Danh sách sách sẽ được hiển thị ở đây -->
+    </div>
+    <div class="end">No copy right
+         <br>edited by sang.danghs0812
+    </div>
+
+
+    <form>
+    <script>
+   
+
+// Hiển thị danh sách
+function showBooks() {
+  const bookList = document.getElementById("bookList");
+  bookList.innerHTML = "";
+  fetch('tkonline/view',{
+    method:'GET',
+    headers: {
+      'Content-Type':'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    
+
+    for (let item of data.result) {
+    const listItem = document.createElement("li");
+    const tentaikhoan = document.createElement("h3");
+    const mataikhoan = document.createElement("p");
+    const loaitaikhoan = document.createElement("p");
+    const matkhau = document.createElement("p");
+    const ngaylaptaikhoan = document.createElement("p");
+    const makhachhang = document.createElement("p");
+    const manhanvien = document.createElement("p");
+
+    mataikhoan.innerText = `Mã tài khoản: ${item.Mataikhoan}`;
+    tentaikhoan.innerText = `Tên tài khoản: ${item.Tentaikhoan}`;
+    loaitaikhoan.innerText = `Loại tài khoản: ${item.Loaitaikhoan}`;
+    matkhau.innerText = `Mật khẩu: ${item.Matkhau}`
+    ngaylaptaikhoan.innerText = `Ngày lập tài khoản: ${formatDate(item.NgaylapTK.slice(0,10))}`;
+    makhachhang.innerText = `Mã khách hàng: ${item.Makhachhang}`;
+    manhanvien.innerText = `Mã nhân viên: ${item.Manhanvien}`;
+
+    listItem.appendChild(mataikhoan);
+    listItem.appendChild(tentaikhoan);
+    listItem.appendChild(loaitaikhoan);
+    listItem.appendChild(matkhau);
+    listItem.appendChild(ngaylaptaikhoan);
+    listItem.appendChild(makhachhang);
+    listItem.appendChild(manhanvien);
+    bookList.appendChild(listItem);
+
+
+    // title.style.color = "linear-gradient(135deg, #f2d50f, #f19c1d, #ef6c34, #d9254d, #8e1a6a, #3f4075, #1d6ab2, #159fbd, #28cfb0, #7bdca4, #b1e87b, #f2d50f)";
+    tentaikhoan.style.animation = "fadein 5s forwards";
+    tentaikhoan.style.fontFamily = "Arial, san-serif";
+    tentaikhoan.style.fontSize = "30px";
+    tentaikhoan.style.color = "aqua";
+
+    listItem.style.animation = "slidein 1s forwards"
+    listItem.style.border = "3px solid white";
+    listItem.style.margin = "50px";
+    listItem.style.color = "white";
+    }
+  })
+  .catch(err => {
+    console.log('co loi xay ra');
+  });
+}
+
+function formatDate(inputDate) {
+  // Tạo một đối tượng Date từ chuỗi ngày tháng
+  const date = new Date(inputDate);
+
+  // Lấy các thành phần ngày, tháng, năm từ đối tượng Date
+  const day = date.getDate();
+  const month = date.getMonth() + 1; // Tháng bắt đầu từ 0, nên cộng thêm 1
+  const year = date.getFullYear();
+
+  // Sắp xếp lại các thành phần để có định dạng "dd-mm-yyyy"
+  const formattedDate = `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}-${year}`;
+
+  return formattedDate;
+}
+
+function addTK () {
+  var info1 = document.querySelector('.info1').value;
+  var info2 = document.querySelector('.info2').value;
+  var info3 = document.querySelector('.info3').value;
+  var info4 = document.querySelector('.info4').value;
+  var info5 = document.querySelector('.info5').value;
+  var info6 = document.querySelector('.info6').value;
+  var info7 = document.querySelector('.info7').value;
+  if (info7 == "") info7 = null;
+  if (info6 == "") info6 = null;
+  const data = {
+    Mataikhoan : info1,
+    Tentaikhoan : info2,
+    Loaitaikhoan : info3,
+    Matkhau : info4,
+    NgaylapTKString :info5,
+    Makhachhang :info6,
+    Manhanvien : info7
+  }
+  fetch('/tkonline/post',{
+    method:'POST',
+    headers: {
+      'Content-Type':'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  alert('Thêm thành công');
+  showBooks();
+}
+
+
+
+
+
+
+
+
+        // Tìm kiếm
   
-</body>
-<script src="./script.js"></script>
+  // Kiểm tra sách
+  
+  
+  // Mượn sách
+  
+  
+  // Hiển thị danh sách sách khi trang được tải lần đầu
+  showBooks();
+  
+    </script>
+</form>
+
+  </body>
 </html>
