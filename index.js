@@ -46,7 +46,7 @@ app.post('/tkonline/post', async (req,res) => {
           res.status(500).send('Internal Server Error');
         }
         else {
-          console.log(result.recordsets);
+          console.log(`them thanh cong tai khoan: ${req.params.id}`);
           res.status(200).send('Procedure executed successfully');
         }
       })
@@ -58,18 +58,49 @@ app.post('/tkonline/post', async (req,res) => {
 });
 //xoa phim
 app.delete('/tkonline/delete/:id', async(req,res) => {
-  var pool = await conn;
-  var sqlString = `DELETE FROM Tai_khoan_online WHERE Mataikhoan = ${req.params.id}`;
-  return await pool.request().query(sqlString, (err,data) => {
-    if (!err){
-      res.send('Xoa thanh cong!!');
-    }
-    else {
-      res.send('Xoa thai bai, co loi xay ra!');
-    }
-  });
-});
+  conn
+    .then(pool => {
+      const request = new sql.Request(pool);
+      request.input('Mataikhoan',sql.CHAR(6),req.params.id);
+      request.execute('XoaTaiKhoan',(err,result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send('Internal Server Error');
+        }
+        else {
+          console.log(`Xoa thanh cong tai khoan co id: ${req.params.id}`);
+          res.status(200).send('Procedure executed successfully');
+        }
+      })
 
+    })
+});
+//edit phim
+app.put('/tkonline/edit', async(req,res) => {
+  const { Mataikhoan, Tentaikhoan, Loaitaikhoan, Matkhau, NgaylapTKString, Makhachhang, Manhanvien } = req.body;
+  conn
+    .then(pool => {
+      const request = new sql.Request(pool);
+      request.input('Mataikhoan', sql.CHAR(6), Mataikhoan);
+      request.input('Tentaikhoan', sql.VARCHAR(255), Tentaikhoan);
+      request.input('Loaitaikhoan', sql.VARCHAR(255), Loaitaikhoan);
+      request.input('Matkhau', sql.VARCHAR(255), Matkhau);
+      request.input('NgaylapTKString', sql.VARCHAR(10), NgaylapTKString);
+      request.input('Makhachhang', sql.CHAR(9), Makhachhang);
+      request.input('Manhanvien', sql.CHAR(6), Manhanvien);
+
+      request.execute('SuaThongTinTaiKhoan',(err, result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send('Internal Server Error');
+        }
+        else {
+          console.log(`sua thanh cong tai khoan: ${Mataikhoan}`);
+          res.status(200).send('Procedure executed successfully');
+        }
+      })
+    })
+})
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/view' + '/index.html');
 });
