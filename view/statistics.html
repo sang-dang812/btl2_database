@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="style.css">
+  <title>Document</title>
+</head>
+
+<body>
+  <nav>
+    <div class="nav-container">
+      <a href="#" class="nav-home">Home</a>
+      <a href="#" class="nav-showtime">Showtime</a>
+      <a href="#" class="nav-statistics">Statistics</a>
+      <a href="#" class="nav-seat">Seat</a>
+    </div>
+  </nav>
+
+  <h1 id="titleOflib">
+    Đếm số tài khoản được tạo sau năm:
+  </h1>
+  <div>
+    <input type="text" name="" class="input-box" placeholder="Số năm >= số năm nhập vào">
+    <button class="count-btn">Đồng ý</button>
+  </div>
+  <table class="list">
+    <thead>
+      <tr>
+        <th>Loại khách hàng</th>
+        <th>Giới tính</th>
+        <th>Tổng số tài khoản</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</body>
+<script>
+  const list = document.querySelector('.list tbody');
+  document.querySelector('.count-btn').addEventListener('click', () => {
+    var inputData = document.querySelector('.input-box').value;
+    countAccount(inputData);
+  })
+  function countAccount(year) {
+    list.innerHTML = '';
+    fetch(`statistics/view/${year}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        for (let item of data.result) {
+          const row = document.createElement("tr");
+          const loaikhachang = document.createElement("td");
+          const gioitinh = document.createElement("td");
+          const tongsotaikhoan = document.createElement("td");
+
+          // deleteButton.setAttribute(`delete${item.Mataikhoan}`, item.Mataikhoan);
+          // deleteButton.addEventListener('click', (e) => {
+          //   const Mataikhoan = e.currentTarget.getAttribute(`delete${item.Mataikhoan}`);
+          //   deleteTK(Mataikhoan);
+          // });
+          // editButton.addEventListener('click', (e) => {
+          //   modalOpen();
+          // })
+
+          loaikhachang.innerText = `${item.Loaikhachhang}`;
+          gioitinh.innerText = `${item.Gioitinh}`;
+          tongsotaikhoan.innerText = `${item.Tongsotaikhoan}`;
+          row.appendChild(loaikhachang);
+          row.appendChild(gioitinh);
+          row.appendChild(tongsotaikhoan);
+          list.appendChild(row);
+
+
+          row.style.animation = "slidein 1s forwards"
+          row.style.border = "3px solid white";
+          row.style.margin = "50px";
+          row.style.color = "white";
+        }
+      })
+      .catch(err => {
+        console.log('co loi xay ra');
+      });
+  }
+  document.querySelector('.nav-showtime').addEventListener('click', () => {
+    window.location.href = '/sub';
+  })
+
+  document.querySelector('.nav-statistics').addEventListener('click', () => {
+    window.location.href = '/statistics';
+  })
+  document.querySelector('.nav-home').addEventListener('click', () => {
+    window.location.href = '/';
+  })
+  document.querySelector('.nav-seat').addEventListener('click', () => {
+    window.location.href = '/availableseats';
+  })
+</script>
+
+</html>

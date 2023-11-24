@@ -231,3 +231,15 @@ body{
   font-style: italic;
   color: yellowgreen;
 }
+
+th {
+  color: #fff;
+  font-family : "Arial, san-serif";
+  font-size: "30px";
+  color: aqua;
+  min-width: 200px;
+}
+
+table {
+  margin: 0 auto;
+}

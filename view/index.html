@@ -4,7 +4,7 @@
 <head>
   <link rel="stylesheet" href="style.css">
 
-  <title>Quản lý thư viện</title>
+  <title>Quản lý rạp phim</title>
 </head>
 
 <body>
@@ -28,10 +28,10 @@
 
   <nav>
     <div class="nav-container">
-      <a href="#">Home</a>
-      <a href="#">About</a>
-      <a href="#">Services</a>
-      <a href="#">Contact</a>
+      <a href="#" class="nav-home">Home</a>
+      <a href="#" class="nav-showtime">Showtime</a>
+      <a href="#" class="nav-statistics">Statistics</a>
+      <a href="#" class="nav-seat">Seat</a>
     </div>
   </nav>
 
@@ -153,7 +153,7 @@
     modalContainer.addEventListener('click', (e) => {
       e.stopPropagation();
     })
-    modalObj.addEventListener('click',(e) => {
+    modalObj.addEventListener('click', (e) => {
       e.currentTarget.classList.add('none');
     })
     deleteButton.addEventListener('click', () => {
@@ -252,17 +252,26 @@
         },
         body: JSON.stringify(data)
       })
-      .then(alert('Sửa thành công'))
+        .then(alert('Sửa thành công'))
         .then(showTK())
         .catch(err => {
           alert(err);
         })
     }
 
+    document.querySelector('.nav-showtime').addEventListener('click', () => {
+      window.location.href = '/sub';
+    })
 
-
-
-
+    document.querySelector('.nav-statistics').addEventListener('click', () => {
+      window.location.href = '/statistics';
+    })
+    document.querySelector('.nav-home').addEventListener('click', () => {
+      window.location.href = '/';
+    })
+    document.querySelector('.nav-seat').addEventListener('click', () => {
+      window.location.href = '/availableseats';
+    })
 
 
     // Tìm kiếm

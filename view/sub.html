@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="style.css">
+  <title>Tim suat chieu</title>
+</head>
+
+<body>
+
+  <div class="modal none">
+    <div class="modal-container">
+      <span class="delete-box">
+        <input type="text" class="edit-info1" name="mataikhoan" placeholder="Mã suất chiếu">
+        <input type="text" class="edit-info2" name="tentaikhoan" placeholder="Ngày chiếu">
+        <input type="text" class="edit-info3" name="loaitaikhoan" placeholder="Giờ bắt đầu">
+        <input type="text" class="edit-info4" name="matkhau" placeholder="Giờ kết thúc">
+        <input type="text" class="edit-info5" name="ngaylaptaikhoan" placeholder="Mã phòng">
+        <input type="text" class="edit-info6" name="makhachhang" placeholder="Mã phim">
+        <input type="text" class="edit-info7" name="manhanvien" placeholder="Mã định dạng phim">
+        <input type="text" class="edit-info8" name="manhanvien" placeholder="Giá vé">
+        <input type="text" class="edit-info7" name="manhanvien" placeholder="Trạng thái">
+
+      </span>
+      <div>
+        <button class="delete-tk-btn">Đồng ý</button>
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-container">
+      <a href="#" class="nav-home">Home</a>
+      <a href="#" class="nav-showtime">Showtime</a>
+      <a href="#" class="nav-statistics">Statistics</a>
+      <a href="#" class="nav-seat">Seat</a>
+    </div>
+  </nav>
+
+  <select name="sap xep" id="sortOption">
+    <option value="ascending" selected>Sắp xếp ngày tăng dần</option>
+    <option value="descending">Sắp xếp ngày giảm dần</option>
+  </select>
+  <div class="input-form">
+    <input type="text" class="input-text" placeholder="Nhập id rạp phim để tìm suất chiếu">
+    <button class="input-btn">Đồng ý</button>
+    <input type="text" class="input-search" placeholder="Tìm suất chiếu theo tên phim">
+    <button class="search-btn">Tìm kiếm</button>
+  </div>
+  <button class="add-btn">Thêm suất chiếu</button>
+  <div id="titleOflib">Danh sách toàn bộ suất chiếu đang có:</div>
+  <div id="list">
+    <!-- Danh sách sẽ được hiển thị ở đây -->
+  </div>
+</body>
+<script>
+  const list = document.getElementById("list");
+
+  document.getElementById('sortOption').addEventListener('change', function () {
+    const sortOrder = this.value;
+    showSC(sortOrder);
+  });
+
+  function sortData(data, sortOrder) {
+    const sortedData = data.result.slice(); // Tạo một bản sao của mảng để tránh ảnh hưởng đến mảng gốc
+    sortedData.sort((a, b) => {
+      const dateA = new Date(a.Ngaychieu);
+      const dateB = new Date(b.Ngaychieu);
+
+      if (sortOrder === 'ascending') {
+        return dateA - dateB;
+      }
+      if (sortOrder === 'descending') {
+        return dateB - dateA;
+      }
+    });
+
+    return sortedData;
+  }
+
+  function showSC(sortOrder = 'ascending') {
+    list.innerHTML = "";
+    fetch('sub/view', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        const sortedData = sortData(data, sortOrder);
+        for (let item of sortedData) {
+          const listItem = document.createElement("li");
+          const masuatchieu = document.createElement("h3");
+          const ngaychieu = document.createElement("p");
+          const giobatdau = document.createElement("p");
+          const gioketthuc = document.createElement("p");
+          const tenphim = document.createElement("p");
+          const tenphong = document.createElement("p");
+          const tenrap = document.createElement("p");
+          const editButton = document.createElement("button");
+          const deleteButton = document.createElement("button");
+
+          deleteButton.setAttribute(`delete${item.Masuatchieu}`, item.Masuatchieu);
+          deleteButton.addEventListener('click', (e) => {
+            const Masuatchieu = e.currentTarget.getAttribute(`delete${item.Masuatchieu}`);
+            deleteSC(Masuatchieu);
+          });
+          editButton.addEventListener('click', (e) => {
+            modalOpen();
+          })
+
+          masuatchieu.innerText = `Mã suất chiếu: ${item.Masuatchieu}`;
+          ngaychieu.innerText = `Ngày chiếu: ${formatDate(item.Ngaychieu.slice(0, 10))}`;
+          giobatdau.innerText = `Giờ bắt đầu: ${item.Giobatdau.slice(11, 19)}`;
+          gioketthuc.innerText = `Giờ kết thúc: ${item.Gioketthuc.slice(11, 19)}`
+          tenphim.innerText = `Tên phim: ${item.Tenphim}`;
+
+          tenphong.innerText = `Tên phòng: ${item.Tenphong}`;
+          tenrap.innerText = `Tên rạp: ${item.Tenrap}`;
+          editButton.innerText = 'Edit';
+          deleteButton.innerText = 'Delete';
+          listItem.appendChild(masuatchieu);
+          listItem.appendChild(ngaychieu);
+          listItem.appendChild(giobatdau);
+          listItem.appendChild(gioketthuc);
+          listItem.appendChild(tenphim);
+          listItem.appendChild(tenphong);
+          listItem.appendChild(tenrap);
+          listItem.appendChild(editButton);
+          listItem.appendChild(deleteButton);
+          list.appendChild(listItem);
+
+
+
+
+          masuatchieu.style.animation = "fadein 5s forwards";
+          masuatchieu.style.fontFamily = "Arial, san-serif";
+          masuatchieu.style.fontSize = "30px";
+          masuatchieu.style.color = "aqua";
+
+          listItem.style.animation = "slidein 1s forwards"
+          listItem.style.border = "3px solid white";
+          listItem.style.margin = "50px";
+          listItem.style.color = "white";
+        }
+      })
+      .catch(err => {
+        console.log('co loi xay ra');
+      });
+  }
+  function formatDate(inputDate) {
+
+    const date = new Date(inputDate);
+
+
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const formattedDate = `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}-${year}`;
+
+    return formattedDate;
+  }
+
+
+
+  document.querySelector('.input-btn').addEventListener('click', () => {
+    const searchValue = document.querySelector('.input-text').value;
+    document.querySelector('#titleOflib').innerText = `Danh sách suất chiếu ở rạp ID = ${searchValue}`;
+    searchSC(searchValue);
+  });
+
+
+  function searchSC(id) {
+    list.innerHTML = "";
+    fetch(`sub/search/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        var sortOrder = document.getElementById('sortOption').value;
+        const sortedData = sortData(data, sortOrder);
+        for (let item of sortedData) {
+          const listItem = document.createElement("li");
+          const masuatchieu = document.createElement("h3");
+          const ngaychieu = document.createElement("p");
+          const giobatdau = document.createElement("p");
+          const gioketthuc = document.createElement("p");
+          const tenphim = document.createElement("p");
+          const tenphong = document.createElement("p");
+          const tenrap = document.createElement("p");
+
+          const editButton = document.createElement("button");
+          const deleteButton = document.createElement("button");
+
+          // deleteButton.setAttribute(`delete${item.Mataikhoan}`, item.Mataikhoan);
+          // deleteButton.addEventListener('click', (e) => {
+          //   const Mataikhoan = e.currentTarget.getAttribute(`delete${item.Mataikhoan}`);
+          //   deleteTK(Mataikhoan);
+          // });
+          // editButton.addEventListener('click', (e) => {
+          //   modalOpen();
+          // })
+
+          masuatchieu.innerText = `Mã suất chiếu: ${item.Masuatchieu}`;
+          ngaychieu.innerText = `Ngày chiếu: ${formatDate(item.Ngaychieu.slice(0, 10))}`;
+          giobatdau.innerText = `Giờ bắt đầu: ${item.Giobatdau.slice(11, 19)}`;
+          gioketthuc.innerText = `Giờ kết thúc: ${item.Gioketthuc.slice(11, 19)}`
+          tenphim.innerText = `Tên phim: ${item.Tenphim}`;
+
+          tenphong.innerText = `Tên phòng: ${item.Tenphong}`;
+          tenrap.innerText = `Tên rạp: ${item.Tenrap}`;
+          editButton.innerText = 'Edit';
+          deleteButton.innerText = 'Delete';
+          listItem.appendChild(masuatchieu);
+          listItem.appendChild(ngaychieu);
+          listItem.appendChild(giobatdau);
+          listItem.appendChild(gioketthuc);
+          listItem.appendChild(tenphim);
+          listItem.appendChild(tenphong);
+          listItem.appendChild(tenrap);
+          listItem.appendChild(editButton);
+          listItem.appendChild(deleteButton);
+          list.appendChild(listItem);
+
+
+
+          masuatchieu.style.animation = "fadein 5s forwards";
+          masuatchieu.style.fontFamily = "Arial, san-serif";
+          masuatchieu.style.fontSize = "30px";
+          masuatchieu.style.color = "aqua";
+
+          listItem.style.animation = "slidein 1s forwards"
+          listItem.style.border = "3px solid white";
+          listItem.style.margin = "50px";
+          listItem.style.color = "white";
+        }
+      })
+      .catch(err => {
+        console.log('co loi xay ra');
+      });
+  }
+  document.querySelector('.search-btn').addEventListener('click', () => {
+    document.querySelector('#titleOflib').innerText = `Danh sách phim ứng với "${document.querySelector('.input-search').value}"`;
+    searchWithNameOfFilm(name);
+  })
+  function searchWithNameOfFilm(name) {
+    const searchContent = document.querySelector('.input-search').value.toLowerCase();
+    list.innerHTML = '';
+    fetch('sub/view', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        var sortOrder = document.getElementById('sortOption').value;
+        const sortedData = sortData(data, sortOrder);
+        const filteredData = sortedData.filter(item => item.Tenphim.toLowerCase().includes(searchContent));
+        for (let item of filteredData) {
+          const listItem = document.createElement("li");
+          const masuatchieu = document.createElement("h3");
+          const ngaychieu = document.createElement("p");
+          const giobatdau = document.createElement("p");
+          const gioketthuc = document.createElement("p");
+          const tenphim = document.createElement("p");
+          const tenphong = document.createElement("p");
+          const tenrap = document.createElement("p");
+          const editButton = document.createElement("button");
+          const deleteButton = document.createElement("button");
+
+
+          masuatchieu.innerText = `Mã suất chiếu: ${item.Masuatchieu}`;
+          ngaychieu.innerText = `Ngày chiếu: ${formatDate(item.Ngaychieu.slice(0, 10))}`;
+          giobatdau.innerText = `Giờ bắt đầu: ${item.Giobatdau.slice(11, 19)}`;
+          gioketthuc.innerText = `Giờ kết thúc: ${item.Gioketthuc.slice(11, 19)}`
+          tenphim.innerText = `Tên phim: ${item.Tenphim}`;
+
+          tenphong.innerText = `Tên phòng: ${item.Tenphong}`;
+          tenrap.innerText = `Tên rạp: ${item.Tenrap}`;
+          editButton.innerText = 'Edit';
+          deleteButton.innerText = 'Delete';
+          listItem.appendChild(masuatchieu);
+          listItem.appendChild(ngaychieu);
+          listItem.appendChild(giobatdau);
+          listItem.appendChild(gioketthuc);
+          listItem.appendChild(tenphim);
+          listItem.appendChild(tenphong);
+          listItem.appendChild(tenrap);
+          listItem.appendChild(editButton);
+          listItem.appendChild(deleteButton);
+          list.appendChild(listItem);
+
+
+
+          masuatchieu.style.animation = "fadein 5s forwards";
+          masuatchieu.style.fontFamily = "Arial, san-serif";
+          masuatchieu.style.fontSize = "30px";
+          masuatchieu.style.color = "aqua";
+
+          listItem.style.animation = "slidein 1s forwards"
+          listItem.style.border = "3px solid white";
+          listItem.style.margin = "50px";
+          listItem.style.color = "white";
+        }
+      })
+      .catch(err => {
+        console.log('co loi xay ra');
+      });
+  }
+
+  showSC();
+
+  const modalObj = document.querySelector('.modal');
+    const modalContainer = document.querySelector('.modal-container');
+    const deleteButton = document.querySelector('.delete-tk-btn');
+    modalContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+    })
+    modalObj.addEventListener('click', (e) => {
+      e.currentTarget.classList.add('none');
+    })
+    deleteButton.addEventListener('click', () => {
+      editTK()
+    })
+    function modalOpen() {
+      var modalObject = document.querySelector('.modal');
+      modalObject.classList.remove('none');
+    }
+
+  document.querySelector('.nav-showtime').addEventListener('click', () => {
+    window.location.href = '/sub';
+  })
+
+  document.querySelector('.nav-statistics').addEventListener('click', () => {
+    window.location.href = '/statistics';
+  })
+  document.querySelector('.nav-home').addEventListener('click', () => {
+    window.location.href = '/';
+  })
+  document.querySelector('.nav-seat').addEventListener('click', () => {
+    window.location.href = '/availableseats';
+  })
+</script>
+
+</html>
