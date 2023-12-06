@@ -11,9 +11,9 @@ var config = {
 const conn = new sql.ConnectionPool(config).connect()
   .then(
     pool => pool
-  )
-
-module.exports = {
-  conn:conn,
-  sql:sql
+    )
+    
+    module.exports = {
+      conn:conn,
+      sql:sql
 };
